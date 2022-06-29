@@ -152,7 +152,7 @@ def Compare(reg1,reg2):
 	else:
 		Z=CY=0
 #hello utsav
-
+#Jai Mata Di!! Let's Rock 💙
 #Ashutosh kya yaar
     
 

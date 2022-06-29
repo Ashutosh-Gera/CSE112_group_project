@@ -12,8 +12,6 @@ register_dict = {'R0' : '000', 'R1' : '001', 'R2' : '010', 'R3' : '011', 'R4' : 
 
 #dictionary of instructions with their corressponding opcodes
 op_dict = {
-    "hello_try":"999",
-    "hello_y":"999",
     'add' : '10000',
     'sub' : '10001',
     'mov1' : '10010',
@@ -38,13 +36,13 @@ op_dict = {
 
 #function to convert decimal numbers to binary
 # for handling immediate values
-def dec2bin(number):
+def dec2bin(str_number):
 
     st = ''
-    while int(number) > 0:
-        remainder = number % 2
+    while int(str_number) > 0:
+        remainder = str_number % 2
         st += str(remainder)
-        number = int(number)//2
+        str_number = int(str_number)//2
     return st[::-1]    
 
 
@@ -87,6 +85,7 @@ def typeC(instruction,r1,r2):
 
 
 def typeD(instruction, r1, mem_addr):
+    #register and memory address type
 
     op = op_dict[instruction]
     c1 = register_dict[r1.upper()]
@@ -94,11 +93,13 @@ def typeD(instruction, r1, mem_addr):
     print (op + c1 + mem_addr)
     
 def typeE(instruction, mem_addr):
+    #memory address type
 
     print (op_dict[instruction] + '0'*3 + mem_addr)
 
 
 def typeF(instruction):
+    #halt
 
     print (op_dict[instruction] + '0'*11)
 
@@ -153,7 +154,7 @@ def Compare(reg1,reg2):
 		Z=CY=0
 
 #hello world
-    
+     
 
 
 

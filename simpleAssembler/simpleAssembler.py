@@ -38,13 +38,13 @@ op_dict = {
 
 #function to convert decimal numbers to binary
 # for handling immediate values
-def dec2bin(number):
+def dec2bin(str_number):
 
     st = ''
-    while int(number) > 0:
-        remainder = number % 2
+    while int(str_number) > 0:
+        remainder = str_number % 2
         st += str(remainder)
-        number = int(number)//2
+        str_number = int(str_number)//2
     return st[::-1]    
 
 

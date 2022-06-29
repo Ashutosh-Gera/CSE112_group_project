@@ -116,6 +116,42 @@ def format_zero_adder(str1,size_req):
 	print((size_req-len(str1))*"0"+str1)
 	return (size_req-len(str1))*"0"+str1
 
+   
+def Right_Shift(reg1,Imm):
+    reg1=reg1>>Imm
+    return reg1
+
+def Left_Shift(reg1,Imm):
+    ls=reg1<<Imm
+    return ls
+
+def Exclusive_OR(reg1, reg2, reg3):
+    reg1=reg2^reg3
+    return reg1
+
+def Or(reg1,reg2,reg3):
+    reg1=reg2|reg3
+    return reg1
+
+def And(reg1,reg2,reg3):
+    reg1=reg2&reg3
+    return reg1
+
+def Invert(reg1,reg2):
+    reg1=~reg2
+    return reg1
+Z=0
+CY=0
+def Compare(reg1,reg2):
+	if(reg1<reg2):
+		CY=1
+		Z=0
+	elif(reg1>reg2):
+		Z=1
+		CY=0
+	else:
+		Z=CY=0
+
 
     
 

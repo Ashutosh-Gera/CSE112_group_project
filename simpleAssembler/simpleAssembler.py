@@ -13,6 +13,7 @@ register_dict = {'R0' : '000', 'R1' : '001', 'R2' : '010', 'R3' : '011', 'R4' : 
 #dictionary of instructions with their corressponding opcodes
 op_dict = {
     "hello_try":"999",
+    "hello_y":"999",
     'add' : '10000',
     'sub' : '10001',
     'mov1' : '10010',

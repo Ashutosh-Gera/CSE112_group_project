@@ -36,13 +36,13 @@ op_dict = {
 
 #function to convert decimal numbers to binary
 # for handling immediate values
-def dec2bin(number):
+def dec2bin(str_number):
 
     st = ''
-    while int(number) > 0:
-        remainder = number % 2
+    while int(str_number) > 0:
+        remainder = str_number % 2
         st += str(remainder)
-        number = int(number)//2
+        str_number = int(str_number)//2
     return st[::-1]    
 
 
@@ -106,6 +106,44 @@ def typeF(instruction):
 
 
 
+   
+def Right_Shift(reg1,Imm):
+    reg1=reg1>>Imm
+    return reg1
+
+def Left_Shift(reg1,Imm):
+    ls=reg1<<Imm
+    return ls
+
+def Exclusive_OR(reg1, reg2, reg3):
+    reg1=reg2^reg3
+    return reg1
+
+def Or(reg1,reg2,reg3):
+    reg1=reg2|reg3
+    return reg1
+
+def And(reg1,reg2,reg3):
+    reg1=reg2&reg3
+    return reg1
+
+def Invert(reg1,reg2):
+    reg1=~reg2
+    return reg1
+Z=0
+CY=0
+def Compare(reg1,reg2):
+	if(reg1<reg2):
+		CY=1
+		Z=0
+	elif(reg1>reg2):
+		Z=1
+		CY=0
+	else:
+		Z=CY=0
+#hello utsav
+#Jai Mata Di!! Let's Rock 💙
+#Ashutosh kya yaar
     
 
 

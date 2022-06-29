@@ -85,6 +85,7 @@ def typeC(instruction,r1,r2):
 
 
 def typeD(instruction, r1, mem_addr):
+    #register and memory address type
 
     op = op_dict[instruction]
     c1 = register_dict[r1.upper()]
@@ -92,14 +93,15 @@ def typeD(instruction, r1, mem_addr):
     print (op + c1 + mem_addr)
     
 def typeE(instruction, mem_addr):
+    #memory address type
 
     print (op_dict[instruction] + '0'*3 + mem_addr)
 
 
 def typeF(instruction):
+    #halt
 
     print (op_dict[instruction] + '0'*11)
-
 
 
 

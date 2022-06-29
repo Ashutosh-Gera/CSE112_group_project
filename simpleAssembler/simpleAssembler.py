@@ -7,10 +7,8 @@ Group - A40
 
 #Creating a simple assembler capable of executing the instructions of given ISA and converts them into binary code!!
 
-#dictionary of registers with their corressponding address'
 register_dict = {'R0' : '000', 'R1' : '001', 'R2' : '010', 'R3' : '011', 'R4' : '100', 'R5' : '101', 'R6' : '110', 'FLAGS' : '111'}
 
-#dictionary of instructions with their corressponding opcodes
 op_dict = {
     'add' : '10000',
     'sub' : '10001',
@@ -34,10 +32,14 @@ op_dict = {
     'hlt' : '01010'
 }
 
-#function to convert decimal numbers to binary
-# for handling immediate values
+typeA_list = ["add","sub","mul","xor","or","and"]
+typeB_list = ["ls"]
+typeC_list = ["cmp","not","div"]
+typeD_list = ["ld","st"]
+typeE_list = ["jmp","jlt","jgt","je"]
+typeF_list = ["hlt"]
+type_total=typeA_list + typeB_list + typeC_list + typeD_list + typeE_list + typeF_list + ["mov" + "var"]
 def dec2bin(str_number):
-
     st = ''
     while int(str_number) > 0:
         remainder = str_number % 2
@@ -45,6 +47,8 @@ def dec2bin(str_number):
         str_number = int(str_number)//2
     return st[::-1]    
 
+def format_zero_adder(str1,size_req):
+	return (size_req-len(str1))*"0"+str1
 
 #defining functions for binary encoding
 def typeA(instruction,r1,r2,r3):
@@ -55,8 +59,7 @@ def typeA(instruction,r1,r2,r3):
     c3 = register_dict[r3.upper()]
 
     op = op_dict[instruction]
-
-    print (op + '0'*2 + c1 + c2 + c3)
+    print (op + '_' + '0'*2 + '_' + c1 + '_' + c2 + '_' + c3)
 
 
 def typeB(instruction, reg, imm_val):
@@ -71,7 +74,7 @@ def typeB(instruction, reg, imm_val):
     #raise ValueError ("Immediate value exceeding the 8-bit limit")
 
     bin_imm_val = dec2bin(int_imm_val)
-    print (op + c1 + bin_imm_val)
+    print (op + '_' + c1 + '_' + format_zero_adder(bin_imm_val,8))
 
 
 def typeC(instruction,r1,r2):
@@ -81,7 +84,7 @@ def typeC(instruction,r1,r2):
     c1 = register_dict[r1.upper()]
     c2 = register_dict[r2.upper()]
 
-    print (op + '0' * 5 + c1 + c2)
+    print (op + '_' + '0' * 5 + '_' + c1 + '_' + c2)
 
 
 def typeD(instruction, r1, mem_addr):
@@ -90,37 +93,129 @@ def typeD(instruction, r1, mem_addr):
     op = op_dict[instruction]
     c1 = register_dict[r1.upper()]
     
-    print (op + c1 + mem_addr)
+    print (op + '_' + c1 + '_' + mem_addr)
     
 def typeE(instruction, mem_addr):
     #memory address type
 
-    print (op_dict[instruction] + '0'*3 + mem_addr)
+    print (op_dict[instruction] + '_' + '0'*3 + '_' + mem_addr)
 
 
 def typeF(instruction):
     #halt
 
-    print (op_dict[instruction] + '0'*11)
+    print (op_dict[instruction] + '_' + '0'*11)
 
+def instruction_initialize(str_input):
+    if (str_input[0] in typeA_list):
+        typeA(str_input[0],str_input[1],str_input[2],str_input[3])
 
-def error_handling(instruction):
+    elif (str_input[0] in typeB_list):
+        typeB(str_input[0],str_input[1],str_input[2])
+
+    elif (str_input[0] in typeC_list):
+        typeC(str_input[0],str_input[1],str_input[2])
+
+    elif (str_input[0] in typeD_list):
+        typeD(str_input[0],str_input[1],str_input[2])
+
+    elif (str_input[0] in typeE_list):
+        typeE(str_input[0],str_input[1])
+
+    elif (str_input[0] in typeF_list):
+        typeF(str_input[0])
+
+    elif (str_input[0] == "mov"):
+        if (str_input[2][0]=="$"):
+            typeB("mov1",str_input[1],str_input[2])
+        else:
+            typeC("mov2",str_input[1],str_input[2])
+
+    else:
+        #for error handling
+        pass
+
+def identify_input(str_input):
+    if (str_input == []):
+        return
+    elif (str_input[0] == "var"):
+        #var_define(str_input)
+        return
+    elif (str_input[0][-1] == ":"):
+        #label_initialize(str_input)
+        return
+    else:
+        instruction_initialize(str_input)
+        return
+var_list=[]
+var_label=[]
+def store_variables(str_input):
+    # to store values of new variables
+    if (str_input[0]=="var") :
+        var_list.append(str_input[1])
+    if (str_input[0] not in type_total and str_input[0][-1]==":" ):
+        var_label.append(str_input[0][:-1])
+
+def error_handling(str_input):
     # error handling
-    #a. Typos in instruction name or register name   
+    # a. Typos in instruction name or register name
+    if (str_input[0] not in type_total):
+        print("Syntax Error")
+        quit()
+    if (str_input[0] not in type_total and str_input[0][-1]!=":"):
+        print("Syntax Error")
+        quit()
+    if (str_input[0]=="mov" and str_input[1][0]!="$"):
+        print("Syntax Error")
+        quit()
+    # b. Use of undefined variables
+    # g. Variables not declared at the beginning
+
+    if ((str_input[0]=="ls" or str_input[0]=="st") and str_input[1] not in var_list):
+        print("Use of undefined variable or Variable not declared at the beginning")
+        quit()
+    # e. Illegal Immediate values (more than 8 bits)
+    if (str_input[0]=="mov" and str_input[1][0]=="$"):
+        if (int(str(str_input[1][1:]))>255 or int(str(str_input[1][1:]))<0 ):
+            print("Illegal Immediate values Error(more than 8 bits)")
+            quit()
+    # f. Misuse of labels as variables or vice-versa
+    if (str_input[0] not in type_total and str_input[0][-1]==":" and str(str_input[0][:-1]) in var_list):
+        print("Misuse of variable as label")
+        quit()
+    if (str_input[0]=="var" and str_input[1] in var_label):
+        print("Misuse of labels as variables")
+        quit()
+
+
     
-
-
 
 def main():
-    #initially creating main working function so that we know which all helper function to make systematically and we'll be able to
-    # make functions accordingly
-    pass
-
-
+    n = int(input("Number Of Operations: "))
+    # hlt error check
+    hlt_check=0
     
-     
 
+    while(n):
+        string_input = input().split()
+        # flag for hlt
+        if (string_input[0]=="hlt" and hlt_check==0):
+            hlt_check=1
+        # to check whether multiple hlts are used or not
+        elif (string_input[0]=="hlt" and hlt_check!=0):
+            print("Use of multiple hlt")
+            quit()
+        # to check if hlt is not used as last instruction
+        elif (string_input[0]!="hlt" and hlt_check!=0):
+            print("hlt not being used as the last instruction")
+            quit()
+        # to check if hlt is missing
+        elif (n==1 and string_input[0]!="hlt" ):
+            print("Missing hlt instruction")
+            quit()
 
+        identify_input(string_input)
+        n-=1
 
 
 

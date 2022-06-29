@@ -153,7 +153,7 @@ def Compare(reg1,reg2):
 		Z=CY=0
 #hello utsav
 
-#Ashutish kya yaar
+#Ashutosh kya yaar
     
 
 

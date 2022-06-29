@@ -7,7 +7,10 @@ Group - A40
 
 #Creating a simple assembler capable of executing the instructions of given ISA and converts them into binary code!!
 
+
+var_temp_list = [-1]
 register_dict = {'R0' : '000', 'R1' : '001', 'R2' : '010', 'R3' : '011', 'R4' : '100', 'R5' : '101', 'R6' : '110', 'FLAGS' : '111'}
+variable_dict = {}
 
 op_dict = {
     'add' : '10000',
@@ -87,11 +90,12 @@ def typeC(instruction,r1,r2):
     print (op + '_' + '0' * 5 + '_' + c1 + '_' + c2)
 
 
-def typeD(instruction, r1, mem_addr):
+def typeD(instruction, r1, variable_name):
     #register and memory address type
 
     op = op_dict[instruction]
     c1 = register_dict[r1.upper()]
+    mem_addr = variable_dict[variable_name]
     
     print (op + '_' + c1 + '_' + mem_addr)
     
@@ -135,11 +139,18 @@ def instruction_initialize(str_input):
         #for error handling
         pass
 
+def var_define(str_input, var_count):
+    variable_dict[str_input[1]] = format_zero_adder(dec2bin(var_count),8)
+    return
+
 def identify_input(str_input):
     if (str_input == []):
         return
     elif (str_input[0] == "var"):
-        #var_define(str_input)
+        global var_count
+        var_count = var_temp_list[0] #For 0 based indexing
+        var_define(str_input,var_count+instruction_count)
+        var_temp_list[0] += 1
         return
     elif (str_input[0][-1] == ":"):
         #label_initialize(str_input)
@@ -148,13 +159,16 @@ def identify_input(str_input):
         instruction_initialize(str_input)
         return
 
-
 def main():
-    n = int(input("Number Of Operations: "))
+    global instruction_count
+    instruction_count = int(input("Number Of Operations: "))
+    n = instruction_count
     while(n):
         string_input = input().split()
         identify_input(string_input)
         n-=1
+    for i in variable_dict.keys():
+        print(i,":",variable_dict[i])
 
 if __name__ =="__main__":
     main()

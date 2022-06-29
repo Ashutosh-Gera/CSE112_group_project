@@ -46,7 +46,7 @@ def dec2bin(number):
         st += str(remainder)
         number = int(number)//2
     return st[::-1]    
-
+# fskldjgkf kldj gkljd ;flgj;kl gjldfjdk;ljg ldkfjkl
 
 #defining functions for binary encoding
 def typeA(instruction,r1,r2,r3):

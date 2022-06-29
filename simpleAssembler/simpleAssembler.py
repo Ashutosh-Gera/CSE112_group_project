@@ -104,7 +104,10 @@ def typeF(instruction):
     print (op_dict[instruction] + '0'*11)
 
 
-     
+def error_handling(instruction):
+    # error handling
+    #a. Typos in instruction name or register name   
+    
 
 
 

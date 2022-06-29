@@ -101,7 +101,18 @@ def typeF(instruction):
     print (op_dict[instruction] + '0'*11)
 
 
+def binary_to_decimal(str_value):
+	"Convert binary to decimal for immediate value instruction"
+	len_str = len(str_value)
+	decimal_value = 0
+	for i in range(len_str):
+		decimal_value += 2**(len_str-1-i)*int(str_value[i])
+	return decimal_value
 
+def format_zero_adder(str1,size_req):
+	"Will Make 110 to 0000000000000110, required format"
+	print((size_req-len(str1))*"0"+str1)
+	return (size_req-len(str1))*"0"+str1
 
 
     

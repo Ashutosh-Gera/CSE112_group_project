@@ -151,9 +151,8 @@ def Compare(reg1,reg2):
 		CY=0
 	else:
 		Z=CY=0
-#hello utsav
 
-#Assh kya yaarn
+#hello world
     
 
 

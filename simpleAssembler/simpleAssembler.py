@@ -44,7 +44,7 @@ typeE_list = ["jmp","jlt","jgt","je"]
 
 typeF_list = ["hlt"]
 
-type_total=typeA_list + typeB_list + typeC_list + typeD_list + typeE_list + typeF_list + ["mov" + "var"]
+type_total = typeA_list + typeB_list + typeC_list + typeD_list + typeE_list + typeF_list + ["mov", "var"]
 
 
 def dec2bin(str_number):
@@ -81,7 +81,7 @@ def typeB(instruction, reg, imm_val):
 
     #if (int_imm_val > 255):
     #raise ValueError ("Immediate value exceeding the 8-bit limit")
-
+    
     bin_imm_val = dec2bin(int_imm_val)
     print (op + '_' + c1 + '_' + format_zero_adder(bin_imm_val,8))
 
@@ -156,8 +156,10 @@ def identify_input(str_input):
     else:
         instruction_initialize(str_input)
         return
+
 var_list=[]
 var_label=[]
+
 def store_variables(str_input):
     # to store values of new variables
     if (str_input[0]=="var") :
@@ -171,27 +173,33 @@ def error_handling(str_input):
     if (str_input[0] not in type_total):
         print("Syntax Error")
         quit()
+        
     if (str_input[0] not in type_total and str_input[0][-1]!=":"):
         print("Syntax Error")
         quit()
+        
     if (str_input[0]=="mov" and str_input[1][0]!="$"):
         print("Syntax Error")
         quit()
+        
     # b. Use of undefined variables
     # g. Variables not declared at the beginning
 
     if ((str_input[0]=="ls" or str_input[0]=="st") and str_input[1] not in var_list):
         print("Use of undefined variable or Variable not declared at the beginning")
         quit()
+        
     # e. Illegal Immediate values (more than 8 bits)
     if (str_input[0]=="mov" and str_input[1][0]=="$"):
         if (int(str(str_input[1][1:]))>255 or int(str(str_input[1][1:]))<0 ):
             print("Illegal Immediate values Error(more than 8 bits)")
             quit()
+            
     # f. Misuse of labels as variables or vice-versa
     if (str_input[0] not in type_total and str_input[0][-1]==":" and str(str_input[0][:-1]) in var_list):
         print("Misuse of variable as label")
         quit()
+        
     if (str_input[0]=="var" and str_input[1] in var_label):
         print("Misuse of labels as variables")
         quit()
@@ -207,7 +215,7 @@ def main():
     input_count = 0 #to keep track of input 
     print_count = 0 #keep track of print count
     lbl_count = 0 #keep track of number of labels
-    non_var_inst = 0 #keeps track of number of non-var instructions
+    inst_count = 0 #keeps track of number of non-var instructions
 
     while True:
         try:
@@ -220,8 +228,43 @@ def main():
         except EOFError:
             break    
 
+    #print (inp)
+    #print (type_total)
+    #now we have input dictionary as all the instructions stored serial wise with keys as their s.no
+    # and values as a list of the instruction data!!
+    var_count = 0
+
+    for i in inp.values():
+        if i[0] == 'var':
+            vars[var_count] = i
+            var_count += 1
+
+        elif i[0] in type_total:
+            instructions[inst_count] = i
+            inst_count += 1
+        
+        elif i[0][-1] == ':' and i[0][-2] != ' ':
+            labels[lbl_count] = i
+            lbl_count += 1
+
+        elif i == []:
+            pass
+
+        else:
+            raise SyntaxError ("General Syntax Error")
+
+    #print (vars)
+    #print(instructions)
+    #print(labels)
     
     
+     
+            
+
+
+
+
+
 
     
 

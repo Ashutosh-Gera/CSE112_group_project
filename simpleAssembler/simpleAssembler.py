@@ -33,12 +33,20 @@ op_dict = {
 }
 
 typeA_list = ["add","sub","mul","xor","or","and"]
-typeB_list = ["ls"]
+
+typeB_list = ["rs","ls"]
+
 typeC_list = ["cmp","not","div"]
+
 typeD_list = ["ld","st"]
+
 typeE_list = ["jmp","jlt","jgt","je"]
+
 typeF_list = ["hlt"]
+
 type_total=typeA_list + typeB_list + typeC_list + typeD_list + typeE_list + typeF_list + ["mov" + "var"]
+
+
 def dec2bin(str_number):
     st = ''
     while int(str_number) > 0:
@@ -46,6 +54,7 @@ def dec2bin(str_number):
         st += str(remainder)
         str_number = int(str_number)//2
     return st[::-1]    
+
 
 def format_zero_adder(str1,size_req):
 	return (size_req-len(str1))*"0"+str1
@@ -191,31 +200,30 @@ def error_handling(str_input):
     
 
 def main():
-    n = int(input("Number Of Operations: "))
-    # hlt error check
-    hlt_check=0
+    inp = {} #dictionary which stores input
+    instructions = {} #dict to store input instructions
+    vars = {} #dict to store input vars
+    labels = {} #dict to store input labels
+    input_count = 0 #to keep track of input 
+    print_count = 0 #keep track of print count
+    lbl_count = 0 #keep track of number of labels
+    non_var_inst = 0 #keeps track of number of non-var instructions
+
+    while True:
+        try:
+            l = input().split()
+            inp[input_count] = l
+            input_count += 1
+            if l[0] == 'hlt':
+                break
+
+        except EOFError:
+            break    
+
+    
     
 
-    while(n):
-        string_input = input().split()
-        # flag for hlt
-        if (string_input[0]=="hlt" and hlt_check==0):
-            hlt_check=1
-        # to check whether multiple hlts are used or not
-        elif (string_input[0]=="hlt" and hlt_check!=0):
-            print("Use of multiple hlt")
-            quit()
-        # to check if hlt is not used as last instruction
-        elif (string_input[0]!="hlt" and hlt_check!=0):
-            print("hlt not being used as the last instruction")
-            quit()
-        # to check if hlt is missing
-        elif (n==1 and string_input[0]!="hlt" ):
-            print("Missing hlt instruction")
-            quit()
-
-        identify_input(string_input)
-        n-=1
+    
 
 
 

@@ -81,7 +81,7 @@ def typeB(instruction, reg, imm_val):
 
     #if (int_imm_val > 255):
     #raise ValueError ("Immediate value exceeding the 8-bit limit")
-    
+
     bin_imm_val = dec2bin(int_imm_val)
     print (op + '_' + c1 + '_' + format_zero_adder(bin_imm_val,8))
 
@@ -164,6 +164,7 @@ def store_variables(str_input):
     # to store values of new variables
     if (str_input[0]=="var") :
         var_list.append(str_input[1])
+        
     if (str_input[0] not in type_total and str_input[0][-1]==":" ):
         var_label.append(str_input[0][:-1])
 
@@ -228,7 +229,7 @@ def main():
         except EOFError:
             break    
 
-    #print (inp)
+    print (inp)
     #print (type_total)
     #now we have input dictionary as all the instructions stored serial wise with keys as their s.no
     # and values as a list of the instruction data!!

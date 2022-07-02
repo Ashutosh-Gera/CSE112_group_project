@@ -115,6 +115,7 @@ def typeD(instruction, r1, variable_name):
     mem_addr = variable_dict[variable_name]
     
     print (op + c1  + mem_addr)
+ 
     
 def typeE(instruction, mem_addr):
     #memory address type
@@ -126,6 +127,7 @@ def typeF(instruction):
     #halt
 
     print (op_dict[instruction] + '0'*11)
+
 
 def instruction_initialize(str_input):
     if (str_input[0] in typeA_list):
@@ -156,9 +158,11 @@ def instruction_initialize(str_input):
         #for error handling
         pass
 
+
 def var_define(str_input, var_count):
     variable_dict[str_input[1]] = format_zero_adder(dec2bin(var_count),8)
     return
+
 
 def identify_input(str_input):
     if (str_input == []):
@@ -176,8 +180,10 @@ def identify_input(str_input):
         instruction_initialize(str_input)
         return
 
+
 var_list=[]
 var_label=[]
+
 
 def store_variables(str_input):
     # to store values of new variables
@@ -185,6 +191,7 @@ def store_variables(str_input):
         var_list.append(str_input[1])
     if (str_input[0] not in type_total and str_input[0][-1]==":" ):
         var_label.append(str_input[0][:-1])
+
 
 def error_handling(str_input):
     # error handling
@@ -223,10 +230,12 @@ def error_handling(str_input):
         print("Misuse of labels as variables")
         quit()
 
+
 def line_check(line_input_count):
     if (line_input_count > 255):
         print("Total instruction lines exceeded count of 255")
         exit()
+
 
 def var_error(inp,var_count):
         var_initial_count = 0

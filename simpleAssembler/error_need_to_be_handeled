@@ -1,9 +1,9 @@
-A register can be one of R0, R1, ... R6, and FLAGS.
+// A register can be one of R0, R1, ... R6, and FLAGS.
 ● A mem_addr in jump instructions must be a label.
-● A Imm must be a whole number <= 255 and >= 0.
+// A Imm must be a whole number <= 255 and >= 0.
 ● A mem_addr in load and store must be a variable.
-No spaces are allowed between label name and colon(:)
-All variables must be defined at the very beginning of the assembly program.
+//No spaces are allowed between label name and colon(:)
+//All variables must be defined at the very beginning of the assembly program.
 
 In particular you must handle:
 a. Typos in instruction name or register name
@@ -12,9 +12,9 @@ c. Use of undefined labels
 d. Illegal use of FLAGS register
 e. Illegal Immediate values (more than 8 bits)
 f. Misuse of labels as variables or vice-versa
-g. Variables not declared at the beginning
-h. Missing hlt instruction
-i. hlt not being used as the last instruction
+// Variables not declared at the beginning
+// Missing hlt instruction
+// hlt not being used as the last instruction
 You need to generate distinct readable errors for all these conditions. If you find any
 other illegal usage, you are required to generate a “General Syntax Error”. The
 assembler must print out all these errors.

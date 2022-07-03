@@ -6,9 +6,12 @@ Group - A40
 '''
 
 #Creating a simple assembler capable of executing the instructions of given ISA and converts them into binary code!!
+
+
 var_temp_list = [-1]
 register_dict = {'R0' : '000', 'R1' : '001', 'R2' : '010', 'R3' : '011', 'R4' : '100', 'R5' : '101', 'R6' : '110', 'FLAGS' : '111'}
 variable_dict = {}
+
 
 op_dict = {
     'add' : '10000',
@@ -32,6 +35,7 @@ op_dict = {
     'je' : '01111',
     'hlt' : '01010'
 }
+
 
 typeA_list = ["add","sub","mul","xor","or","and"]
 
@@ -62,12 +66,14 @@ def dec2bin(str_number):
 def format_zero_adder(str1,size_req):
 	return (size_req-len(str1))*"0"+str1
 
+
 #defining functions for binary encoding
 def typeA(instruction,r1,r2,r3):
-    if (r1 in register_dict) and (r2 in register_dict) and (r3 in register_dict):
+    if (r1.upper() in register_dict) and (r2.upper() in register_dict) and (r3.upper() in register_dict):
         pass
     else:
         print("The register used is not of the declared type")
+        exit()
     #3 register type
 
     c1 = register_dict[r1.upper()]
@@ -95,7 +101,7 @@ def typeB(instruction, reg, imm_val):
 
 def typeC(instruction,r1,r2):
     #2 register type
-    if (r1 in register_dict) and (r2 in register_dict):
+    if (r1.upper() in register_dict) and (r2.upper() in register_dict):
         pass
     else:
         print("The register used is not of the declared type")
@@ -129,55 +135,56 @@ def typeF(instruction):
     print (op_dict[instruction] + '0'*11)
 
 
-def instruction_initialize(str_input):
-    if (str_input[0] in typeA_list):
-        typeA(str_input[0],str_input[1],str_input[2],str_input[3])
+def instruction_initialize(input):
+    
+    if (input[0] in typeA_list):
+        typeA(input[0],input[1],input[2],input[3])
 
-    elif (str_input[0] in typeB_list):
-        typeB(str_input[0],str_input[1],str_input[2])
+    elif (input[0] in typeB_list):
+        typeB(input[0],input[1],input[2])
 
-    elif (str_input[0] in typeC_list):
-        typeC(str_input[0],str_input[1],str_input[2])
+    elif (input[0] in typeC_list):
+        typeC(input[0],input[1],input[2])
 
-    elif (str_input[0] in typeD_list):
-        typeD(str_input[0],str_input[1],str_input[2])
+    elif (input[0] in typeD_list):
+        typeD(input[0],input[1],input[2])
 
-    elif (str_input[0] in typeE_list):
-        typeE(str_input[0],str_input[1])
+    elif (input[0] in typeE_list):
+        typeE(input[0],input[1])
 
-    elif (str_input[0] in typeF_list):
-        typeF(str_input[0])
+    elif (input[0] in typeF_list):
+        typeF(input[0])
 
-    elif (str_input[0] == "mov"):
-        if (str_input[2][0]=="$"):
-            typeB("mov1",str_input[1],str_input[2])
+    elif (input[0] == "mov"):
+        if (input[2][0]=="$"):
+            typeB("mov1",input[1],input[2])
         else:
-            typeC("mov2",str_input[1],str_input[2])
+            typeC("mov2",input[1],input[2])
 
     else:
         #for error handling
         pass
 
 
-def var_define(str_input, var_count):
-    variable_dict[str_input[1]] = format_zero_adder(dec2bin(var_count),8)
+def var_define(input, var_count):
+    variable_dict[input[1]] = format_zero_adder(dec2bin(var_count),8)
     return
 
 
-def identify_input(str_input):
-    if (str_input == []):
+def identify_input(input):
+    if (input == []):
         return
-    elif (str_input[0] == "var"):
+    elif (input[0] == "var"):
         global var_count
         var_count = var_temp_list[0] #For 0 based indexing
-        var_define(str_input,var_count+instruction_count)
+        var_define(input, var_count+instruction_count)
         var_temp_list[0] += 1
         return
-    elif (str_input[0][-1] == ":"):
-        #label_initialize(str_input)
+    elif (input[0][-1] == ":"):
+        #label_initialize(input)
         return
     else:
-        instruction_initialize(str_input)
+        instruction_initialize(input)
         return
 
 
@@ -185,48 +192,42 @@ var_list=[]
 var_label=[]
 
 
-def store_variables(str_input):
+def store_variables(input):
     # to store values of new variables
-    if (str_input[0]=="var") :
-        var_list.append(str_input[1])
-    if (str_input[0] not in type_total and str_input[0][-1]==":" ):
-        var_label.append(str_input[0][:-1])
+    if (input[0]=="var") :
+        var_list.append(input[1])
+    if (input[0] not in type_total and input[0][-1]==":" ):
+        var_label.append(input[0][:-1])
 
 
-def error_handling(str_input):
+def error_handling(input):
     # error handling
     # a. Typos in instruction name or register name
-    if (str_input[0] not in type_total):
+        
+    if (input[0] not in type_total and input[0][-1] != ":"):
         print("Syntax Error")
         quit()
-        
-    if (str_input[0] not in type_total and str_input[0][-1]!=":"):
-        print("Syntax Error")
-        quit()
-        
-    if (str_input[0]=="mov" and str_input[1][0]!="$"):
-        print("Syntax Error")
-        quit()
-        
+                
     # b. Use of undefined variables
     # g. Variables not declared at the beginning
 
-    if ((str_input[0]=="ls" or str_input[0]=="st") and str_input[1] not in var_list):
+    if ((input[0]=="ls" or input[0]=="st") and input[1] not in var_list):
         print("Use of undefined variable or Variable not declared at the beginning")
         quit()
         
     # e. Illegal Immediate values (more than 8 bits)
-    if (str_input[0]=="mov" and str_input[1][0]=="$"):
-        if (int(str(str_input[1][1:]))>255 or int(str(str_input[1][1:]))<0 ):
+    if (input[0]=="mov" and input[2][0]=="$"):
+        
+        if (int(dec2bin(input[2][1:])))>255 or int(dec2bin(str(input[1][1:]))) < 0:
             print("Illegal Immediate values Error(more than 8 bits)")
             quit()
             
     # f. Misuse of labels as variables or vice-versa
-    if (str_input[0] not in type_total and str_input[0][-1]==":" and str(str_input[0][:-1]) in var_list):
+    if (input[0] not in type_total and input[0][-1] == ":" and str(input[0][:-1]) in var_list):
         print("Misuse of variable as label")
         quit()
         
-    if (str_input[0]=="var" and str_input[1] in var_label):
+    if (input[0] == "var" and input[1] in var_label):
         print("Misuse of labels as variables")
         quit()
 
@@ -258,13 +259,23 @@ def halt_error(inp):
     if (hlt_count == 0):
         print("hlt instruction missing")
         exit()
-    if (hlt_count==1 and inp[-1][0]!='hlt'):
+    if (hlt_count==1 and inp[-1][0] != 'hlt'):
         print("hlt not being used as the last instruction")
         exit()
     if (hlt_count>1):
         print("More then one hlt")
         exit()
 
+def lbl_error(labels, lbl_count):
+    #function to check if there are any errors in labels
+    a = set(labels.values())
+    
+    if len(a) != len(labels.values):
+        print ("Error: Defining label with same name multiple times!")
+        exit()
+    
+        
+    
 
             
             
@@ -292,6 +303,7 @@ def main():
 
         except EOFError:
             break    
+   
     line_check(input_count)
     
     # print (inp)
@@ -323,6 +335,7 @@ def main():
     # print(instructions)
     # print(labels)
 
+    halt_error(inp)
     var_error(inp,var_count)
 
     for i in inp:

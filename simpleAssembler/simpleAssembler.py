@@ -8,9 +8,9 @@ Group - A40
 #Creating a simple assembler capable of executing the instructions of given ISA and converts them into binary code!!
 
 
-var_temp_list = [-1]
+#var_temp_list = [-1]
 register_dict = {'R0' : '000', 'R1' : '001', 'R2' : '010', 'R3' : '011', 'R4' : '100', 'R5' : '101', 'R6' : '110', 'FLAGS' : '111'}
-variable_dict = {}
+#variable_dict = {}
 
 
 op_dict = {
@@ -188,8 +188,8 @@ def identify_input(input):
         return
 
 
-var_list=[]
-var_label=[]
+#var_list=[]
+#var_label=[]
 
 
 def store_variables(input):
@@ -274,16 +274,136 @@ def lbl_error(labels, lbl_count):
         print ("Error: Defining label with same name multiple times!")
         exit()
     
-        
+def register_valid_check(instructions, var_list, label_list):
     
-
+    for i in instructions.values():
+        if i[0] in ['add', 'sub', 'mul', 'xor', 'or', 'and']:
             
+            if len(i) != 4:
+                print ("Error: Invalid instruction length")
+                exit()
             
-
+            if (i[1] not in register_dict.keys()) or (i[2] not in register_dict.keys()) or (i[3] not in register_dict.keys()):
+                print ("Error: Wrong register input")
+                exit()
+                
+            if (i[1] == 'FLAGS') or (i[2] == 'FLAGS') or (i[3] == 'FLAGS'):
+                print ('Error: Invalid use of FLAGS register')
+                exit()
+                
+        elif i[0] == 'mov':
+            #type B mov
+            if i[2][0] == '$':
+                imm = int(dec2bin(i[2][1:]))
+                if (imm > 255) or (imm < 0):
+                    print("Error: Invalid immediate value")
+                    exit()
+                if len(i) != 3:
+                    print ("Error: Invalid instruction length")
+                    exit()
+                if i[1] not in register_dict.keys():
+                    print ("Error: Invalid register")
+                    exit()
+                if i[1] == 'FLAGS':
+                    print ("Error: Invalid use of FLAGS register")
+                    exit()
+            #type C mov
+            else:
+                if len(i) != 3:
+                    print ("Error: Invalid instruction length")
+                    exit()
+                
+                if i[1] not in register_dict.keys() or i[2] not in register_dict.keys():
+                    print("Error: Invalid register")
+                    exit()
+                
+                if i[1] == 'FLAGS':
+                    print ("Error: Invalid use of FLAGS register")
+                
+        elif i[0] == 'ld' or i[0] == 'st':
+            #a mem_addr in load and store must be a variable   
+            if len(i) != 3:
+                print("Error: Invalid instruction length")
+                exit()
+            
+            if i[1] not in register_dict.keys():
+                print ("Error: Invalid register used!!")
+                exit()
+            if i[1] == 'FLAGS':
+                print ("Error: Invalid use of FLAGS register")                         
+                exit()
+            
+            if i[2] not in var_list:
+                print ("Error: A memory address in load and store must be a variable")
+                exit()    
+    
+        elif i[0] in ['div', 'not','cmp']:
+            if len(i) != 3:
+                print ("Error: Invalid Instruction length")
+                exit()
+            
+            if i[1] not in register_dict.keys() or i[2] not in register_dict.keys():
+                print ("Error: Invalid register used")
+                exit()
+                
+            if i[1] == 'FLAGS' or i[2] == 'FLAGS':
+                print ("Invalid use of FLAGS register")
+                exit()
+            
+        elif i[0] == 'rs' or i[0] == 'ls':
+            if len(i) != 3:
+                print ("Error: Invalid Instruction length")        
+                exit()
+            
+            if i[1] not in register_dict.keys():
+                print("Error: Invalid register used")
+                exit()
+            
+            if i[1] == 'FLAGS':
+                print("Error: Invalid use of FLAGS register")
+                exit()
+            
+            if i[2][0] != '$':
+                print ("Error: Invalid Syntax (no '$' used before immediate value!)")
+                exit()
+            
+            if i[2][0] == '$':
+                for j in i[2][1:]:
+                    if j not in ['0','1']:
+                        print("Error: Invalid syntax of imm val")
+                        exit()
+                        
+                imm = int(dec2bin(i[2][1:]))
+                if (imm > 255) or (imm < 0):
+                    print ("Error: Immediate value entered is greater than 8 bits!")
+                    exit()
         
-
+        elif i[0] in ['jmp', 'jlt', 'jgt', 'je']:
+            
+            if len(i) != 2:
+                print ("Error: Invalid Instruction length")
+                exit()
+            
+            if i[1] not in label_list:
+                print ("Error: A mem address in jump instructions must be a label")
+                exit()
+         
+        elif i[0] == 'hlt':
+            
+            if len(i) != 1:
+                print ("Error: Invalid instruction length (giving commans to hlt)")        
+                exit()
+        
+        else:
+            print ("General Syntax error")
+            exit()            
+     
+    return None                
+                            
+                
 def main():
-    global instruction_count
+    
+    global input_count
     inp = {} #dictionary which stores input
     instructions = {} #dict to store input instructions
     vars = {} #dict to store input vars
@@ -292,6 +412,8 @@ def main():
     print_count = 0 #keep track of print count
     lbl_count = 0 #keep track of number of labels
     inst_count = 0 #keeps track of number of non-var instructions
+    label_list=[] #list containing all the labels
+    var_list = [] #list containing all the input vars
 
     while True:
         try:
@@ -316,6 +438,7 @@ def main():
     for i in inp.values():
         if i[0] == 'var':
             vars[var_count] = i
+            var_list.append(i[1])
             var_count += 1
 
         elif i[0] in type_total:
@@ -323,7 +446,9 @@ def main():
             inst_count += 1
         
         elif i[0][-1] == ':' and i[0][-2] != ' ':
+            i[0] = i[0][:-1].strip()
             labels[lbl_count] = i
+            label_list.append(i[0])
             lbl_count += 1
 
         elif i == []:
@@ -334,7 +459,9 @@ def main():
 
     # print (vars)
     # print(instructions)
-    # print(labels)
+    #print(labels)
+    #print(label_list)
+    print (var_list)
 
     
      

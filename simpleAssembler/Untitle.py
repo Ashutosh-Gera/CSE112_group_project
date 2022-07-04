@@ -11,19 +11,18 @@ Group - A40
 var_temp_list = [-1]
 register_dict = {'R0' : '000', 'R1' : '001', 'R2' : '010', 'R3' : '011', 'R4' : '100', 'R5' : '101', 'R6' : '110', 'FLAGS' : '111'}
 variable_dict = {}
+label_dict={} #list containing all the labels
+inp = {} #dictionary which stores input
+instructions = {} #dict to store input instructions
+vars = {} #dict to store input vars
+labels = {} #dict to store input labels
+input_count = 0 #to keep track of input 
+print_count = 0 #keep track of print count
+lbl_count = 0 #keep track of number of labels
+inst_count = 0 #keeps track of number of non-var instructions
 # label_dict={} #list containing all the labels
-# inp = {} #dictionary which stores input
-# instructions = {} #dict to store input instructions
-# vars = {} #dict to store input vars
-# labels = {} #dict to store input labels
-# input_count = 0 #to keep track of input 
-# print_count = 0 #keep track of print count
-# lbl_count = 0 #keep track of number of labels
-# inst_count = 0 #keeps track of number of non-var instructions
-global label_dict #list containing all the labels
-label_dict = {}
-# var_list = [] #list containing all the input vars
-# var_count = 0
+var_list = [] #list containing all the input vars
+var_count = 0
 
 
 op_dict = {
@@ -118,7 +117,6 @@ def typeC(instruction,r1,r2):
         pass
     else:
         print("The register used is not of the declared type")
-        exit()
  
     op = op_dict[instruction]
     c1 = register_dict[r1.upper()]
@@ -233,14 +231,14 @@ def halt_error(inp):
         print("hlt not being used as the last instruction")
         exit()
     if (hlt_count>1):
-        print("More than one hlt")
+        print("More then one hlt")
         exit()
 
-def lbl_error(label_list):
+def lbl_error(labels, lbl_count):
     #function to check if there are any errors in labels
-    a = set(label_list)
+    a = set(labels.values())
     
-    if len(a) != len(label_list):
+    if len(a) != len(labels.values):
         print ("Error: Defining label with same name multiple times!")
         exit()
     
@@ -264,7 +262,7 @@ def register_valid_check(instructions, var_list, label_list):
         elif i[0] == 'mov':
             #type B mov
             if i[2][0] == '$':
-                imm = int(i[2][1:])
+                imm = int(dec2bin(i[2][1:]))
                 if (imm > 255) or (imm < 0):
                     print("Error: Invalid immediate value")
                     exit()
@@ -343,7 +341,7 @@ def register_valid_check(instructions, var_list, label_list):
                         print("Error: Invalid syntax of imm val")
                         exit()
                         
-                imm = int(i[2][1:])
+                imm = int(dec2bin(i[2][1:]))
                 if (imm > 255) or (imm < 0):
                     print ("Error: Immediate value entered is greater than 8 bits!")
                     exit()
@@ -374,26 +372,25 @@ def register_valid_check(instructions, var_list, label_list):
 def main():
     
     global input_count
-    global inp
-    inp = {} #dictionary which stores input
-    instructions = {} #dict to store input instructions
-    vars = {} #dict to store input vars
-    labels = {} #dict to store input labels
-    input_count = 0 #to keep track of input 
-    lbl_count = 0 #keep track of number of labels
-    inst_count = 0 #keeps track of number of non-var instructions
-    #label_dict={} #list containing all the labels
-    var_list = [] #list containing all the input vars
-    var_count = 0
-    label_list=[] #list containing all the labels
+    # inp = {} #dictionary which stores input
+    # instructions = {} #dict to store input instructions
+    # vars = {} #dict to store input vars
+    # labels = {} #dict to store input labels
+    # input_count = 0 #to keep track of input 
+    # print_count = 0 #keep track of print count
+    # lbl_count = 0 #keep track of number of labels
+    # inst_count = 0 #keeps track of number of non-var instructions
+    # # label_dict={} #list containing all the labels
+    # var_list = [] #list containing all the input vars
+    # var_count = 0
 
     while True:
         try:
             l = input().split()
             inp[input_count] = l
             input_count += 1
-            #if l[0] == 'hlt':
-            #   break
+            if l[0] == 'hlt':
+                break
 
         except EOFError:
             break    
@@ -416,12 +413,10 @@ def main():
             inst_count += 1
         
         elif inp[i][0][-1] == ':' and inp[i][0][-2] != ' ':
+            # i[0] = i[0][:-1].strip()
             labels[lbl_count] = inp[i]
             label_dict[inp[i][0][:-1]] = i
             lbl_count += 1
-            inp[i][0] = inp[i][0][:-1].strip()
-            label_list.append(inp[i][0])
-
 
         elif inp[i] == []:
             pass
@@ -432,15 +427,15 @@ def main():
     # print(variable_dict)
     # print (vars)
     # print(instructions)
-    #print(inp)
-    #print(labels)
-    #print(label_dict)
+    print(inp)
+    print(labels)
+    print(label_dict)
     # print (var_list)
 
-    register_valid_check(instructions, var_list, label_list)
+    # register_valid_check(instructions, var_list, label_list)
     var_error(inp, var_count)
     halt_error(inp)
-    lbl_error(label_list)
+    # lbl_error(label_list)
 
     for i in inp:
         identify_input(inp[i])

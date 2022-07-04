@@ -11,6 +11,19 @@ Group - A40
 var_temp_list = [-1]
 register_dict = {'R0' : '000', 'R1' : '001', 'R2' : '010', 'R3' : '011', 'R4' : '100', 'R5' : '101', 'R6' : '110', 'FLAGS' : '111'}
 variable_dict = {}
+# label_dict={} #list containing all the labels
+# inp = {} #dictionary which stores input
+# instructions = {} #dict to store input instructions
+# vars = {} #dict to store input vars
+# labels = {} #dict to store input labels
+# input_count = 0 #to keep track of input 
+# print_count = 0 #keep track of print count
+# lbl_count = 0 #keep track of number of labels
+# inst_count = 0 #keeps track of number of non-var instructions
+global label_dict #list containing all the labels
+label_dict = {}
+# var_list = [] #list containing all the input vars
+# var_count = 0
 
 
 op_dict = {
@@ -105,6 +118,7 @@ def typeC(instruction,r1,r2):
         pass
     else:
         print("The register used is not of the declared type")
+        exit()
  
     op = op_dict[instruction]
     c1 = register_dict[r1.upper()]
@@ -125,13 +139,16 @@ def typeD(instruction, r1, variable_name):
     
 def typeE(instruction, mem_addr):
     #memory address type
-
-    print (op_dict[instruction] + '0'*3  + mem_addr)
-
+    label_instruction_num = label_dict[mem_addr]
+    print (op_dict[instruction] + '0'*3  + format_zero_adder(dec2bin(label_instruction_num),8))
+    for i in inp:
+        if (i<label_instruction_num):
+            pass
+        else:
+            identify_input(inp[i])
 
 def typeF(instruction):
     #halt
-
     print (op_dict[instruction] + '0'*11)
 
 
@@ -165,11 +182,9 @@ def instruction_initialize(input):
         #for error handling
         pass
 
-
 def var_define(input, var_count):
     variable_dict[input[1]] = format_zero_adder(dec2bin(var_count),8)
     return
-
 
 def identify_input(input):
     if (input == []):
@@ -180,63 +195,18 @@ def identify_input(input):
         var_define(input, var_count+input_count)
         var_temp_list[0] += 1
         return
-    elif (input[0][-1] == ":"):
-        #label_initialize(input)
+    elif (input[0][-1] == ":"): #Prints instruction ahead of label
+        label_rest_input = input[1:]
+        instruction_initialize(label_rest_input)
         return
     else:
         instruction_initialize(input)
         return
 
-
-var_list=[]
-var_label=[]
-
-
-def store_variables(input):
-    # to store values of new variables
-    if (input[0]=="var") :
-        var_list.append(input[1])
-    if (input[0] not in type_total and input[0][-1]==":" ):
-        var_label.append(input[0][:-1])
-
-
-def error_handling(input):
-    # error handling
-    # a. Typos in instruction name or register name
-        
-    if (input[0] not in type_total and input[0][-1] != ":"):
-        print("Syntax Error")
-        quit()
-                
-    # b. Use of undefined variables
-    # g. Variables not declared at the beginning
-
-    if ((input[0]=="ls" or input[0]=="st") and input[1] not in var_list):
-        print("Use of undefined variable or Variable not declared at the beginning")
-        quit()
-        
-    # e. Illegal Immediate values (more than 8 bits)
-    if (input[0]=="mov" and input[2][0]=="$"):
-        
-        if (int(input[2][1:]))>255 or int(str(input[1][1:])) < 0:
-            print("Illegal Immediate values Error(more than 8 bits)")
-            quit()
-            
-    # f. Misuse of labels as variables or vice-versa
-    if (input[0] not in type_total and input[0][-1] == ":" and str(input[0][:-1]) in var_list):
-        print("Misuse of variable as label")
-        quit()
-        
-    if (input[0] == "var" and input[1] in var_label):
-        print("Misuse of labels as variables")
-        quit()
-
-
 def line_check(line_input_count):
-    if (line_input_count > 255):
+    if (line_input_count > 256):
         print("Total instruction lines exceeded count of 255")
         exit()
-
 
 def var_error(inp,var_count):
         var_initial_count = 0
@@ -250,11 +220,11 @@ def var_error(inp,var_count):
             print(f"var defined at {i} instruction, not at beginning of the file")
             exit()
 
-
 def halt_error(inp):
     hlt_count = 0
     for i in inp:
-        if (inp[i][0] == 'hlt'):
+        # -1 replaced by 0 to ensure counts label: hlt as well.
+        if (inp[i][-1] == 'hlt'):
             hlt_count += 1
     if (hlt_count == 0):
         print("hlt instruction missing")
@@ -263,7 +233,7 @@ def halt_error(inp):
         print("hlt not being used as the last instruction")
         exit()
     if (hlt_count>1):
-        print("More then one hlt")
+        print("More than one hlt")
         exit()
 
 def lbl_error(label_list):
@@ -273,7 +243,6 @@ def lbl_error(label_list):
     if len(a) != len(label_list):
         print ("Error: Defining label with same name multiple times!")
         exit()
- 
     
 def register_valid_check(instructions, var_list, label_list):
     
@@ -330,7 +299,6 @@ def register_valid_check(instructions, var_list, label_list):
             if i[1] not in register_dict.keys():
                 print ("Error: Invalid register used!!")
                 exit()
-                
             if i[1] == 'FLAGS':
                 print ("Error: Invalid use of FLAGS register")                         
                 exit()
@@ -375,7 +343,7 @@ def register_valid_check(instructions, var_list, label_list):
                         print("Error: Invalid syntax of imm val")
                         exit()
                         
-                imm = int(dec2bin(i[2][1:]))
+                imm = int(i[2][1:])
                 if (imm > 255) or (imm < 0):
                     print ("Error: Immediate value entered is greater than 8 bits!")
                     exit()
@@ -406,24 +374,26 @@ def register_valid_check(instructions, var_list, label_list):
 def main():
     
     global input_count
+    global inp
     inp = {} #dictionary which stores input
     instructions = {} #dict to store input instructions
     vars = {} #dict to store input vars
     labels = {} #dict to store input labels
     input_count = 0 #to keep track of input 
-    print_count = 0 #keep track of print count
     lbl_count = 0 #keep track of number of labels
     inst_count = 0 #keeps track of number of non-var instructions
-    label_list=[] #list containing all the labels
+    #label_dict={} #list containing all the labels
     var_list = [] #list containing all the input vars
+    var_count = 0
+    label_list=[] #list containing all the labels
 
     while True:
         try:
             l = input().split()
             inp[input_count] = l
             input_count += 1
-            if l[0] == 'hlt':
-                break
+            #if l[0] == 'hlt':
+            #   break
 
         except EOFError:
             break    
@@ -434,46 +404,46 @@ def main():
     #print (type_total)
     #now we have input dictionary as all the instructions stored serial wise with keys as their s.no
     # and values as a list of the instruction data!!
-    var_count = 0
-    instruction_count = len(inp)
     
-    for i in inp.values():
-        if i[0] == 'var':
-            vars[var_count] = i
-            var_list.append(i[1])
+    for i in inp:
+        if inp[i][0] == 'var':
+            vars[var_count] = inp[i]
+            var_list.append(inp[i][1])
             var_count += 1
 
-        elif i[0] in type_total:
-            instructions[inst_count] = i
+        elif inp[i][0] in type_total:
+            instructions[inst_count] = inp[i]
             inst_count += 1
         
-        elif i[0][-1] == ':' and i[0][-2] != ' ':
-            i[0] = i[0][:-1].strip()
-            labels[lbl_count] = i
-            label_list.append(i[0])
+        elif inp[i][0][-1] == ':' and inp[i][0][-2] != ' ':
+            labels[lbl_count] = inp[i]
+            label_dict[inp[i][0][:-1]] = i
             lbl_count += 1
+            inp[i][0] = inp[i][0][:-1].strip()
+            label_list.append(inp[i][0])
 
-        elif i == []:
+
+        elif inp[i] == []:
             pass
 
         else:
             raise SyntaxError ("General Syntax Error")
 
+    # print(variable_dict)
     # print (vars)
     # print(instructions)
+    #print(inp)
     #print(labels)
-    #print(label_list)
-    #print (var_list)
+    #print(label_dict)
+    # print (var_list)
 
-    
     register_valid_check(instructions, var_list, label_list)
     var_error(inp, var_count)
     halt_error(inp)
     lbl_error(label_list)
-    
+
     for i in inp:
-         identify_input(inp[i])
-    
+        identify_input(inp[i])
      
             
 

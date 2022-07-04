@@ -8,9 +8,9 @@ Group - A40
 #Creating a simple assembler capable of executing the instructions of given ISA and converts them into binary code!!
 
 
-#var_temp_list = [-1]
+var_temp_list = [-1]
 register_dict = {'R0' : '000', 'R1' : '001', 'R2' : '010', 'R3' : '011', 'R4' : '100', 'R5' : '101', 'R6' : '110', 'FLAGS' : '111'}
-#variable_dict = {}
+variable_dict = {}
 
 
 op_dict = {
@@ -177,7 +177,7 @@ def identify_input(input):
     elif (input[0] == "var"):
         global var_count
         var_count = var_temp_list[0] #For 0 based indexing
-        var_define(input, var_count+instruction_count)
+        var_define(input, var_count+input_count)
         var_temp_list[0] += 1
         return
     elif (input[0][-1] == ":"):
@@ -188,8 +188,8 @@ def identify_input(input):
         return
 
 
-#var_list=[]
-#var_label=[]
+var_list=[]
+var_label=[]
 
 
 def store_variables(input):
@@ -218,7 +218,7 @@ def error_handling(input):
     # e. Illegal Immediate values (more than 8 bits)
     if (input[0]=="mov" and input[2][0]=="$"):
         
-        if (int(dec2bin(input[2][1:])))>255 or int(dec2bin(str(input[1][1:]))) < 0:
+        if (int(input[2][1:]))>255 or int(str(input[1][1:])) < 0:
             print("Illegal Immediate values Error(more than 8 bits)")
             quit()
             
@@ -259,20 +259,21 @@ def halt_error(inp):
     if (hlt_count == 0):
         print("hlt instruction missing")
         exit()
-    if (hlt_count==1 and inp[-1][0] != 'hlt'):
+    if (hlt_count==1 and inp[len(inp)-1][0] != 'hlt'):
         print("hlt not being used as the last instruction")
         exit()
     if (hlt_count>1):
         print("More then one hlt")
         exit()
 
-def lbl_error(labels, lbl_count):
+def lbl_error(label_list):
     #function to check if there are any errors in labels
-    a = set(labels.values())
+    a = set(label_list)
     
-    if len(a) != len(labels.values):
+    if len(a) != len(label_list):
         print ("Error: Defining label with same name multiple times!")
         exit()
+ 
     
 def register_valid_check(instructions, var_list, label_list):
     
@@ -294,7 +295,7 @@ def register_valid_check(instructions, var_list, label_list):
         elif i[0] == 'mov':
             #type B mov
             if i[2][0] == '$':
-                imm = int(dec2bin(i[2][1:]))
+                imm = int(i[2][1:])
                 if (imm > 255) or (imm < 0):
                     print("Error: Invalid immediate value")
                     exit()
@@ -329,6 +330,7 @@ def register_valid_check(instructions, var_list, label_list):
             if i[1] not in register_dict.keys():
                 print ("Error: Invalid register used!!")
                 exit()
+                
             if i[1] == 'FLAGS':
                 print ("Error: Invalid use of FLAGS register")                         
                 exit()
@@ -461,8 +463,16 @@ def main():
     # print(instructions)
     #print(labels)
     #print(label_list)
-    print (var_list)
+    #print (var_list)
 
+    
+    register_valid_check(instructions, var_list, label_list)
+    var_error(inp, var_count)
+    halt_error(inp)
+    lbl_error(label_list)
+    
+    for i in inp:
+         identify_input(inp[i])
     
      
             

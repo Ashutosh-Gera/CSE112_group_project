@@ -341,8 +341,6 @@ def main():
     for i in inp:
          identify_input(inp[i])
          
-    for i in variable_dict.keys():
-        print(i,":",variable_dict[i])
     
      
             

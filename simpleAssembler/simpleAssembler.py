@@ -275,6 +275,7 @@ def register_valid_check(instructions, var_list, label_list):
                 
                 if i[1] == 'FLAGS':
                     print ("Error: Invalid use of FLAGS register")
+                    exit()
                 
         elif i[0] == 'ld' or i[0] == 'st':
             #a mem_addr in load and store must be a variable   

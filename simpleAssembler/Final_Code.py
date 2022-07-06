@@ -365,7 +365,7 @@ def main():
     vars = {} #dict to store input vars
     labels = {} #dict to store input labels
     input_count = 0 #to keep track of input 
-    print_count = 0 #keep track of print count
+    #print_count = 0 #keep track of print count
     lbl_count = 0 #keep track of number of labels
     inst_count = 0 #keeps track of number of non-var instructions
     var_list = [] #list containing all the input vars
@@ -377,8 +377,8 @@ def main():
             l = input().split()
             inp[input_count] = l
             input_count += 1
-            if l[-1] == 'hlt':
-                break
+            #if l[-1] == 'hlt':
+                #break
 
         except EOFError:
             break    

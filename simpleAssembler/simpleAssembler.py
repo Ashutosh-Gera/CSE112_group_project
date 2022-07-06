@@ -112,7 +112,7 @@ def typeB(instruction, reg, imm_val):
     print (op + c1  + format_zero_adder(bin_imm_val,8))
 
 
-def typeC(instruction,r1,r2):
+def typeC(instruction, r1, r2):
     #2 register type
     if (r1.upper() in register_dict) and (r2.upper() in register_dict):
         pass
@@ -142,7 +142,7 @@ def typeE(instruction, mem_addr):
     label_instruction_num = label_dict[mem_addr]
     print (op_dict[instruction] + '0'*3  + format_zero_adder(dec2bin(label_instruction_num),8))
     for i in inp:
-        if (i<label_instruction_num):
+        if (i < label_instruction_num):
             pass
         else:
             identify_input(inp[i])
@@ -229,7 +229,7 @@ def halt_error(inp):
     if (hlt_count == 0):
         print("hlt instruction missing")
         exit()
-    if (hlt_count==1 and inp[len(inp)-1][0] != 'hlt'):
+    if (hlt_count==1 and inp[len(inp)-1][-1] != 'hlt'):
         print("hlt not being used as the last instruction")
         exit()
     if (hlt_count>1):
@@ -354,7 +354,7 @@ def register_valid_check(instructions, var_list, label_list):
                 print ("Error: Invalid Instruction length")
                 exit()
             
-            if i[1] not in label_list:
+            if (i[1]+':') not in label_list:
                 print ("Error: A mem address in jump instructions must be a label")
                 exit()
          
@@ -392,8 +392,8 @@ def main():
             l = input().split()
             inp[input_count] = l
             input_count += 1
-            #if l[0] == 'hlt':
-            #   break
+            if l[-1] == 'hlt':
+              break
 
         except EOFError:
             break    
@@ -401,8 +401,8 @@ def main():
     line_check(input_count)
     
     # print (inp)
-    #print (type_total)
-    #now we have input dictionary as all the instructions stored serial wise with keys as their s.no
+    # print (type_total)
+    # now we have input dictionary as all the instructions stored serial wise with keys as their s.no
     # and values as a list of the instruction data!!
     
     for i in inp:
@@ -419,7 +419,7 @@ def main():
             labels[lbl_count] = inp[i]
             label_dict[inp[i][0][:-1]] = i
             lbl_count += 1
-            inp[i][0] = inp[i][0][:-1].strip()
+            #inp[i][0] = inp[i][0][:-1].strip()
             label_list.append(inp[i][0])
 
 
@@ -434,7 +434,7 @@ def main():
     # print(instructions)
     #print(inp)
     #print(labels)
-    #print(label_dict)
+    print(label_dict)
     # print (var_list)
 
     register_valid_check(instructions, var_list, label_list)

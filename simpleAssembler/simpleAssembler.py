@@ -324,12 +324,7 @@ def register_valid_check(instructions, var_list, label_list):
                 print ("Error: Invalid Syntax (no '$' used before immediate value!)")
                 exit()
             
-            if i[2][0] == '$':
-                for j in i[2][1:]:
-                    if j not in ['0','1']:
-                        print("Error: Invalid syntax of imm val")
-                        exit()
-                        
+            if i[2][0] == '$':                        
                 imm = int(i[2][1:])
                 if (imm > 255) or (imm < 0):
                     print ("Error: Immediate value entered is greater than 8 bits!")
@@ -376,10 +371,11 @@ def main():
     while True:
         try:
             l = input().split()
-            inp[input_count] = l
-            input_count += 1
-            #if l[-1] == 'hlt':
-                #break
+            if l != []:
+                inp[input_count] = l
+                input_count += 1
+                #if l[-1] == 'hlt':
+                #   break
 
         except EOFError:
             break    

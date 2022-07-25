@@ -281,6 +281,11 @@ def register_valid_check(instructions, var_list, label_list):
                     print(f'Error at instruction line {i+var_count_final}')          
                     print("Error: Invalid register")
                     exit()
+
+                if instructions[i][2] == 'FLAGS':
+                    print(f'Error at instruction line {i+var_count_final}')          
+                    print ("Error: Invalid use of FLAGS register")
+                    exit()
                 
         elif instructions[i][0] == 'ld' or instructions[i][0] == 'st':
             #a mem_addr in load and store must be a variable   

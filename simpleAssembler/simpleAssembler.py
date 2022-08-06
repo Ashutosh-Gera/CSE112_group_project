@@ -6,7 +6,6 @@ Group - A40
 '''
 
 #Creating a simple assembler capable of executing the instructions of given ISA and converts them into binary code!!
-
 var_temp_list = [0]
 register_dict = {'R0' : '000', 'R1' : '001', 'R2' : '010', 'R3' : '011', 'R4' : '100', 'R5' : '101', 'R6' : '110', 'FLAGS' : '111'}
 variable_dict = {}
@@ -14,6 +13,9 @@ global label_dict #list containing all the labels
 label_dict = {}
 
 op_dict = {
+    'addf' : '00000',
+    'subf' : '00001',
+    'movf' : '00010',
     'add' : '10000',
     'sub' : '10001',
     'mov1' : '10010',
@@ -37,9 +39,9 @@ op_dict = {
 }
 
 
-typeA_list = ["add","sub","mul","xor","or","and"]
+typeA_list = ["add","sub","mul","xor","or","and","addf","subf"]
 
-typeB_list = ["rs","ls"]
+typeB_list = ["rs","ls","movf"]
 
 typeC_list = ["cmp","not","div"]
 
@@ -54,7 +56,7 @@ typeF_list = ["hlt"]
 type_total = typeA_list + typeB_list + typeC_list + typeD_list + typeE_list + typeF_list + ["mov", "var"]
 
 
-def dec2bin(str_number):
+def deccccn(str_number):
     st = ''
     while int(str_number) > 0:
         remainder = int(str_number) % 2
@@ -66,6 +68,61 @@ def dec2bin(str_number):
 def format_zero_adder(str1,size_req):
 	return (size_req-len(str1))*"0"+str1
 
+def whole2bin(str_number):
+    st = ''
+    while int(str_number) > 0:
+        remainder = int(str_number) % 2
+        st += str(remainder)
+        str_number = int(str_number)//2    
+    return st[::-1] 
+
+def dec2bin(str_number,ixx):
+    str_number = '0.'+str_number
+    str_out = ''
+    float_num = float(str_number)
+    loop_error_detector = 0
+    while(float_num!=0 and loop_error_detector < 8):
+        float_num*=2
+        str_out += str(int(float_num))
+        float_num = float_num - int(float_num)
+        loop_error_detector+=1
+    if (loop_error_detector == 8):
+        print(f"Error at instruction line: {ixx}")
+        exit()
+    return str_out
+
+def ieee_conv(n,ixx):
+    whole_num, dec_num = n.split(".")
+    float_str = (whole2bin(whole_num) + '.' + dec2bin(dec_num,ixx))
+    float_num = float(float_str)
+    float_len = len(float_str)
+    if (float_len>8):
+        print(f"Error at instruction line: {ixx}")
+        exit()
+    exp_counter = 0
+    while(float_num>2):
+        float_num/=10
+        exp_counter+=1
+    final_str = str(float_num)[0:float_len]
+    exp_str = n_bits(whole2bin(exp_counter),3)
+    mantissa_str = n_bits_opp(final_str[2:float_len],5)
+    ieee_final = exp_str + mantissa_str
+    if len(ieee_final)>8:
+        print(f"Error at instruction line: {ixx}")
+        exit()
+    return ieee_final
+
+def n_bits(bin,n):
+    if len(bin)<n:
+        while len(bin) != n:
+            bin = '0' + bin    
+    return bin 
+
+def n_bits_opp(bin,n):
+    if len(bin)<n:
+        while len(bin) != n:
+            bin = bin + '0' 
+    return bin 
 
 #defining functions for binary encoding
 def typeA(instruction,r1,r2,r3):
@@ -84,19 +141,22 @@ def typeA(instruction,r1,r2,r3):
     print (op + '0'*2 + c1 + c2 + c3)
 
 
-def typeB(instruction, reg, imm_val):
+def typeB(instruction, reg, imm_val, ixx):
     #register & immedicate vale type
 
     op = op_dict[instruction]
     c1 = register_dict[reg.upper()]
     imm_val = (imm_val.replace('$', '')).strip()
-    int_imm_val = int(imm_val)
 
-    #if (int_imm_val > 255):
-    #raise ValueError ("Immediate value exceeding the 8-bit limit")
-    
-    bin_imm_val = dec2bin(int_imm_val)
-    print (op + c1  + format_zero_adder(bin_imm_val,8))
+    if (op=='10010' or op=='11000' or op=='11001'):
+        int_imm_val = int(imm_val)
+        bin_imm_val = deccccn(int_imm_val)
+        print (op + c1  + format_zero_adder(bin_imm_val,8))
+        return
+
+    else:
+        final_ieee_format = ieee_conv(imm_val,ixx)
+        print(op+c1+final_ieee_format)
 
 
 def typeC(instruction,r1,r2):
@@ -126,7 +186,7 @@ def typeD(instruction, r1, variable_name):
 def typeE(instruction, mem_addr):
     #memory address type
     label_instruction_num = label_dict[mem_addr]
-    print (op_dict[instruction] + '0'*3  + format_zero_adder(dec2bin(label_instruction_num),8))
+    print (op_dict[instruction] + '0'*3  + format_zero_adder(deccccn(label_instruction_num),8))
     # for i in inp:
     #     if (i<label_instruction_num):
     #         pass
@@ -138,13 +198,13 @@ def typeF(instruction):
     print (op_dict[instruction] + '0'*11)
 
 
-def instruction_initialize(input):
+def instruction_initialize(input,ixx):
     
     if (input[0] in typeA_list):
         typeA(input[0],input[1],input[2],input[3])
 
     elif (input[0] in typeB_list):
-        typeB(input[0],input[1],input[2])
+        typeB(input[0],input[1],input[2],ixx)
 
     elif (input[0] in typeC_list):
         typeC(input[0],input[1],input[2])
@@ -160,7 +220,7 @@ def instruction_initialize(input):
 
     elif (input[0] == "mov"):
         if (input[2][0]=="$"):
-            typeB("mov1",input[1],input[2])
+            typeB("mov1",input[1],input[2],ixx)
         else:
             typeC("mov2",input[1],input[2])
 
@@ -169,10 +229,10 @@ def instruction_initialize(input):
         pass
 
 def var_define(input, var_counter):
-    variable_dict[input[1]] = format_zero_adder(dec2bin(var_counter),8)
+    variable_dict[input[1]] = format_zero_adder(deccccn(var_counter),8)
     return
 
-def identify_input(input):
+def identify_input(input,ixx):
     if (input == []):
         return
     elif (input[0] == "var"):
@@ -183,10 +243,10 @@ def identify_input(input):
         return
     elif (input[0][-1] == ":"): #Prints instruction ahead of label
         label_rest_input = input[1:]
-        instruction_initialize(label_rest_input)
+        instruction_initialize(label_rest_input,ixx)
         return
     else:
-        instruction_initialize(input)
+        instruction_initialize(input,ixx)
         return
 
 def line_check(line_input_count):
@@ -233,8 +293,7 @@ def lbl_error(label_list):
 def register_valid_check(instructions, var_list, label_list):
     
     for i in instructions:
-        if instructions[i][0] in ['add', 'sub', 'mul', 'xor', 'or', 'and']:
-            
+        if instructions[i][0] in ['add', 'sub', 'mul', 'xor', 'or', 'and','addf','subf']:   
             if len(instructions[i]) != 4:
                 print(f'Error at instruction line {i+var_count_final}')          
                 print ("Error: Invalid instruction length")
@@ -255,6 +314,28 @@ def register_valid_check(instructions, var_list, label_list):
             if instructions[i][2][0] == '$':
                 imm = int(instructions[i][2][1:])
                 if (imm > 255) or (imm < 0):
+                    print(f'Error at instruction line {i+var_count_final}')          
+                    print("Error: Invalid immediate value")
+                    exit()
+                if len(instructions[i]) != 3:
+                    print(f'Error at instruction line {i+var_count_final}')          
+                    print ("Error: Invalid instruction length")
+                    exit()
+                if instructions[i][1] not in register_dict.keys():
+                    print(f'Error at instruction line {i+var_count_final}')          
+                    print ("Error: Invalid register")
+                    exit()
+                if instructions[i][1] == 'FLAGS':
+                    print(f'Error at instruction line {i+var_count_final}')          
+                    print ("Error: Invalid use of FLAGS register")
+                    exit()
+                
+        elif instructions[i][0] == 'movf':
+            #type B mov
+            if instructions[i][2][0] == '$':
+                temp_imm, dec_imm = (instructions[i][2][1:]).split(".")
+                imm = int(temp_imm)
+                if (imm > 252) or (imm < 0):
                     print(f'Error at instruction line {i+var_count_final}')          
                     print("Error: Invalid immediate value")
                     exit()
@@ -375,9 +456,8 @@ def register_valid_check(instructions, var_list, label_list):
             print(f'Error at instruction line {i+var_count_final}')          
             print ("General Syntax error")
             exit()            
-     
     return None                
-                            
+
 def main():
     
     global input_count
@@ -437,14 +517,14 @@ def main():
 
     var_count_final = var_count
 
-
     register_valid_check(instructions, var_list, label_list)
     var_error(inp, var_count)
     halt_error(inp)
     lbl_error(label_list)
 
     for i in inp:
-        identify_input(inp[i])
+        ixx = i
+        identify_input(inp[i],ixx)
 
 
     #for i in instructions:

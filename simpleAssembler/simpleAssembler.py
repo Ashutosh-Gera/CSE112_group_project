@@ -57,7 +57,7 @@ type_total = typeA_list + typeB_list + typeC_list + typeD_list + typeE_list + ty
 def dec2bin(str_number):
     st = ''
     while int(str_number) > 0:
-        remainder = str_number % 2
+        remainder = int(str_number) % 2
         st += str(remainder)
         str_number = int(str_number)//2
     return st[::-1]    
